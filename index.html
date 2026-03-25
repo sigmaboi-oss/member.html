@@ -3,59 +3,66 @@
 <head>
 
 <style>
-/* 🔥 SCROLLBAR (CLEAN INFERNO) */
+/* 🔥 GARBO SCROLLBAR CANCELLATION */
 #scrollBox::-webkit-scrollbar {
-    width: 6px;
+    display: none !important;
 }
 
-#scrollBox::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-#scrollBox::-webkit-scrollbar-thumb {
-    background: linear-gradient(#ff3c00, #ffae00);
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(255,60,0,0.7);
-}
-
-#scrollBox::-webkit-scrollbar-thumb:hover {
-    background: #ffae00;
-    box-shadow: 0 0 15px #ffae00;
-}
-
-/* Firefox */
 #scrollBox {
-    scrollbar-width: thin;
-    scrollbar-color: #ff3c00 transparent;
+    -ms-overflow-style: none !important;  /* IE and Edge */
+    scrollbar-width: none !important;  /* Firefox */
+    overflow-y: auto;
+}
+
+/* 🔥 THE MAIN BOX STYLING */
+#mainContainer {
+    background: #050505;
+    border: 2px solid #ff3c00;
+    border-radius: 20px; /* Adjust this number for rounder corners */
+    overflow: hidden;    /* Clips the content inside to the rounded shape */
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 0 15px rgba(255, 60, 0, 0.4);
+}
+
+/* 🔥 HOVER GLOW FOR THE MAIN BOX */
+#mainContainer:hover {
+    box-shadow: 0 0 30px #ff3c00, 0 0 50px rgba(255, 106, 0, 0.5);
+    transform: scale(1.01);
+}
+
+body {
+    overflow: hidden;
+    padding: 10px; /* Gives room for the glow effect */
+    background: transparent; /* Good for sidebar embedding */
 }
 </style>
 
 </head>
 
-<body style="margin:0;background:#050505;font-family:'Segoe UI',sans-serif;color:#fff;">
+<body style="margin:0; font-family:'Segoe UI',sans-serif; color:#fff;">
 
-<!-- 🔥 TITLE -->
-<div style="
-padding:12px;
-font-weight:900;
-font-size:13px;
-letter-spacing:2px;
-text-transform:uppercase;
-color:#ffae00;
-border-bottom:2px solid #ff3c00;
-text-shadow:0 0 10px #ff3c00;
-">
-🔥 Latest Recruits
-</div>
+<div id="mainContainer">
+    <div style="
+    padding:12px;
+    font-weight:900;
+    font-size:13px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:#ffae00;
+    border-bottom:2px solid #ff3c00;
+    text-shadow:0 0 10px #ff3c00;
+    background: #0a0a0a;
+    ">
+    🔥 Latest Recruits
+    </div>
 
-<!-- 🔥 SCROLL BOX -->
-<div id="scrollBox" style="
-height:280px;
-overflow-y:auto;
-background:linear-gradient(to bottom,#0a0a0a,#000);
-padding:8px;
-">
-<div id="members">Loading...</div>
+    <div id="scrollBox" style="
+    height:280px;
+    background:linear-gradient(to bottom,#0a0a0a,#000);
+    padding:8px;
+    ">
+        <div id="members">Loading...</div>
+    </div>
 </div>
 
 <script>
@@ -74,7 +81,6 @@ try{
 const res = await fetch(`https://api.chess.com/pub/club/${club}/members`);
 const data = await res.json();
 
-// 🔥 SORT (BEST POSSIBLE)
 let members = (data.weekly || [])
 .sort((a,b)=>b.joined - a.joined)
 .slice(0,5);
@@ -101,7 +107,6 @@ color:#cfcfcf;
 transition:all 0.25s ease;
 `;
 
-// 🔥 HOVER GLOW
 div.onmouseover = () => {
 div.style.color = "#ffae00";
 div.style.transform = "scale(1.03)";
@@ -118,7 +123,6 @@ div.style.border = "1px solid rgba(255,60,0,0.15)";
 
 container.appendChild(div);
 
-// 🔥 FETCH PLAYER DATA
 try{
 let profile = await fetch(`https://api.chess.com/pub/player/${u.username}`).then(r=>r.json());
 let stats = await fetch(`https://api.chess.com/pub/player/${u.username}/stats`).then(r=>r.json());
@@ -128,39 +132,17 @@ let online = profile.status==="online";
 let avatar = profile.avatar || "https://www.chess.com/bundles/web/images/noavatar_l.84a92436.gif";
 
 div.innerHTML = `
-<img src="${avatar}" style="
-width:34px;height:34px;border-radius:50%;
-box-shadow:0 0 10px rgba(255,60,0,0.5);
-">
-
+<img src="${avatar}" style="width:34px;height:34px;border-radius:50%;box-shadow:0 0 10px rgba(255,60,0,0.5);">
 <div style="display:flex;flex-direction:column;">
-<a href="https://www.chess.com/member/${u.username}" target="_blank"
-style="text-decoration:none;color:inherit;font-weight:700;">
-${u.username}
-</a>
-
-<div style="font-size:11px;color:#888;">
-${online ? "🟢 Online" : "⚫ Offline"} • Rapid: ${rating}
+<a href="https://www.chess.com/member/${u.username}" target="_blank" style="text-decoration:none;color:inherit;font-weight:700;">${u.username}</a>
+<div style="font-size:11px;color:#888;">${online ? "🟢 Online" : "⚫ Offline"} • Rapid: ${rating}</div>
 </div>
-</div>
-
-${isFirst ? `<span style="
-margin-left:auto;
-font-size:10px;
-background:#ff3c00;
-padding:3px 8px;
-border-radius:6px;
-font-weight:900;
-box-shadow:0 0 12px #ff3c00;
-">NEW</span>` : ""}
+${isFirst ? `<span style="margin-left:auto;font-size:10px;background:#ff3c00;padding:3px 8px;border-radius:6px;font-weight:900;box-shadow:0 0 12px #ff3c00;">NEW</span>` : ""}
 `;
-
 }catch(e){
 div.innerHTML = `<div style="color:red;">Error loading ${u.username}</div>`;
 }
-
 }
-
 }catch(e){
 container.innerHTML = "<div style='color:red;padding:10px;'>FAILED TO LOAD</div>";
 }
@@ -168,27 +150,20 @@ container.innerHTML = "<div style='color:red;padding:10px;'>FAILED TO LOAD</div>
 
 load();
 
-// 🔥 AUTO SCROLL (NO LOOP)
 function autoScroll(){
 if(autoScrolling){
-
 scrollBox.scrollTop += speed;
-
 if(scrollBox.scrollTop >= scrollBox.scrollHeight - scrollBox.clientHeight){
 autoScrolling = false;
 }
-
 }
-
 requestAnimationFrame(autoScroll);
 }
 autoScroll();
 
-// 🔥 USER CONTROL
 scrollBox.addEventListener("scroll", () => {
 autoScrolling = false;
 clearTimeout(idleTimer);
-
 idleTimer = setTimeout(()=>{
 if(scrollBox.scrollTop < scrollBox.scrollHeight - scrollBox.clientHeight){
 autoScrolling = true;
